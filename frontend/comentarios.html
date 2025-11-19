@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Comentarios | Seguridad Industrial</title>
+    <link rel="stylesheet" href="estilos.css">
+
+    <style>
+        .logout-top {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .logout-top:hover {
+            background: #b02a37;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-window">
+        <div class="title-bar">
+            <span>Sistema de Gestión de Seguridad Industrial</span>
+            <div class="window-controls">
+                <button class="logout-top" onclick="window.location.href='../login.php'">➡️ Cerrar Sesión</button>
+                <span class="control-btn" title="Minimizar">_</span>
+                <span class="control-btn" title="Maximizar">☐</span>
+                <span class="control-btn" title="Cerrar" onclick="window.close()">X</span>
+            </div>
+        </div>
+
+        <div class="app-container">
+            <aside class="sidebar">
+                <h2>Módulos</h2>
+                <nav>
+                    <a href="empleado_dashboard.html">🏠 Inicio</a>
+                    <a href="registro.html">📝 Registro de Incidencias</a>
+                    <a href="comentarios.html" class="active">💬 Formulario de Comentarios</a>
+                    <a href="capacitaciones_empleado.html">📅 Capacitaciones</a>
+                </nav>
+            </aside>
+            
+            <main class="main-content">
+                <h2>Buzón de Sugerencias y Comentarios</h2>
+                <p>Tu opinión es importante para mejorar continuamente la seguridad. Este formulario puede ser anónimo.</p>
+                
+                <div class="form-section">
+                    <form id="form-comentario" action="#" method="POST">
+                        <label for="nombre">Nombre (Opcional):</label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Para un seguimiento, puedes ingresar tu nombre.">
+
+                        <label for="asunto">Asunto / Tema:</label>
+                        <input type="text" id="asunto" name="asunto" placeholder="Ej: Sugerencia de EPP, Mejora de Procedimiento" required>
+
+                        <label for="comentario">Comentario o Sugerencia:</label>
+                        <textarea id="comentario" name="comentario" rows="8" required></textarea>
+                        
+                        <button type="submit">Enviar Comentario</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        document.getElementById("form-comentario").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            // Obtener datos del formulario
+            const formData = {
+                nombre: document.getElementById("nombre").value || 'Anónimo',
+                asunto: document.getElementById("asunto").value,
+                comentario: document.getElementById("comentario").value,
+                estado: "pendiente", // Estado por defecto
+                empleado: sessionStorage.getItem('usuario') || 'Anónimo' // Usuario logueado
+            };
+
+            // Validaciones básicas
+            if (!formData.asunto || !formData.comentario) {
+                alert("Por favor complete el asunto y el comentario");
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8081/api/comentarios', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    const comentarioGuardado = await response.json();
+                    alert('✅ Comentario enviado correctamente a la base de datos');
+                    this.reset(); // Limpiar formulario
+                    
+                    // Opcional: Redirigir al dashboard
+                    setTimeout(() => {
+                        const rol = sessionStorage.getItem('rol');
+                        if (rol === 'admin') {
+                            window.location.href = 'admin_dashboard.html';
+                        } else {
+                            window.location.href = 'empleado_dashboard.html';
+                        }
+                    }, 1500);
+                    
+                } else {
+                    const error = await response.json();
+                    alert('❌ Error: ' + (error.message || 'No se pudo enviar el comentario'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error de conexión con el servidor');
+            }
+        });
+    </script>
+</body>
+</html>

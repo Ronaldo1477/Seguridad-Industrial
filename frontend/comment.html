@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comentarios y Retroalimentación | Seguridad Industrial</title>
+  <link rel="stylesheet" href="estilos.css">
+  <style>
+    /* 🔹 Estilos del botón de cerrar sesión */
+    .logout-btn-top {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+
+    .logout-btn-top:hover {
+      background: #b02a37;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-btn {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 0 5px;
+    }
+
+    .title-bar {
+      background: #0d6efd;
+      color: white;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-window">
+    <div class="title-bar">
+      <span>Sistema de Gestión de Seguridad Industrial (ADMINISTRADOR)</span>
+      <div class="window-controls">
+        <!-- 🔹 Botón de cerrar sesión agregado -->
+        <a href="login.html" class="logout-btn-top" title="Cerrar Sesión">➡️ Cerrar Sesión</a>
+        <span class="control-btn" title="Minimizar">_</span>
+        <span class="control-btn" title="Maximizar">☐</span>
+        <span class="control-btn" title="Cerrar">X</span>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <aside class="sidebar">
+        <h2>Módulos</h2>
+        <nav>
+          <a href="admin_dashboard.html" class="active">📊 Dashboard / Inicio</a>
+          <a href="incidentes.html">📝 Incidentes</a>
+          <a href="comment.html">💬 Gestión de Comentarios</a>
+          <a href="capacitaciones.html">📘 Capacitaciones</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <h2>Comentarios y Retroalimentación de Empleados</h2>
+
+        <section class="filtros-comentarios">
+          <h3>Filtrar Comentarios</h3>
+          <label for="estado">Estado:</label>
+          <select id="estado">
+            <option value="">Todos</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="atendido">Atendido</option>
+          </select>
+          <button id="btn-filtrar" class="btn">Aplicar Filtros</button>
+        </section>
+
+        <section class="tabla-comentarios">
+          <h3>Listado de Comentarios Recibidos</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Empleado</th>
+                <th>Fecha</th>
+                <th>Comentario</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="lista-comentarios"></tbody>
+          </table>
+        </section>
+
+        <section class="exportar">
+          <h3>Exportar Comentarios</h3>
+          <button id="export-pdf" class="btn">📄 Exportar PDF</button>
+          <button id="export-xlsx" class="btn">📊 Exportar Excel</button>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function renderComentarios(filtro = "") {
+      let lista = JSON.parse(localStorage.getItem("comentarios")) || [];
+      const tabla = document.getElementById("lista-comentarios");
+      tabla.innerHTML = "";
+
+      if (filtro) {
+        filtro = filtro.toString().toLowerCase();
+        lista = lista.filter(c => (c.estado || "").toString().toLowerCase() === filtro);
+      }
+
+      if (lista.length === 0) {
+        tabla.innerHTML = "<tr><td colspan='6'>No hay comentarios registrados</td></tr>";
+        return;
+      }
+
+      lista.forEach(c => {
+        const estadoDisplay = (c.estado || "").toString();
+        const fila = `
+          <tr>
+            <td>#${c.id}</td>
+            <td>${c.empleado}</td>
+            <td>${c.fecha}</td>
+            <td>${c.comentario}</td>
+            <td><span class="estado ${estadoDisplay.toLowerCase()}">${estadoDisplay}</span></td>
+            <td>
+              <button class="btn-small success" onclick="marcarAtendido('${c.id}')">Marcar como Atendido</button>
+              <button class="btn-small danger" onclick="eliminarComentario('${c.id}')">Eliminar</button>
+            </td>
+          </tr>`;
+        tabla.insertAdjacentHTML("beforeend", fila);
+      });
+    }
+
+    function marcarAtendido(id) {
+      let lista = JSON.parse(localStorage.getItem("comentarios")) || [];
+      lista = lista.map(c => c.id === id ? {...c, estado: "atendido"} : c);
+      localStorage.setItem("comentarios", JSON.stringify(lista));
+      const filtroActual = document.getElementById("estado").value;
+      renderComentarios(filtroActual);
+    }
+
+    function eliminarComentario(id) {
+      if (!confirm("¿Eliminar este comentario?")) return;
+      let lista = JSON.parse(localStorage.getItem("comentarios")) || [];
+      lista = lista.filter(c => c.id !== id);
+      localStorage.setItem("comentarios", JSON.stringify(lista));
+      const filtroActual = document.getElementById("estado").value;
+      renderComentarios(filtroActual);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const btnFiltrar = document.getElementById("btn-filtrar");
+      btnFiltrar.addEventListener("click", () => {
+        const estado = document.getElementById("estado").value;
+        renderComentarios(estado);
+      });
+      renderComentarios();
+      document.getElementById("estado").addEventListener("change", (e) => {
+        renderComentarios(e.target.value);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Capacitaciones | Panel del Empleado</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="app-window">
+    <div class="title-bar">
+      <span>Panel del Empleado - Mis Capacitaciones</span>
+      <div class="window-controls">
+        <span class="control-btn" title="Minimizar">_</span>
+        <span class="control-btn" title="Maximizar">☐</span>
+        <span class="control-btn" title="Cerrar">X</span>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <aside class="sidebar">
+        <h2>Menú</h2>
+        <nav>
+          <a href="empleado_dashboard.html">🏠 Inicio</a>
+          <a href="registro.html">📝 Reportar Incidente</a>
+          <a href="comentarios.html">💬 Enviar Comentario</a>
+          <a href="capacitaciones_empleado.html" class="active">📅 Mis Capacitaciones</a>
+          <a href="login.html" class="logout-btn">➡️ Cerrar Sesión</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <h2>📅 Mis Capacitaciones Programadas</h2>
+
+        <!-- Notificaciones -->
+        <div class="notifications" style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+          <h3>🔔 Mis Próximas Capacitaciones</h3>
+          <ul id="notificaciones-lista">
+            <!-- Se llena dinámicamente -->
+          </ul>
+        </div>
+
+        <!-- Lista de Capacitaciones -->
+        <section class="tabla-capacitaciones">
+          <h3>📋 Todas mis Capacitaciones</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Tema</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Duración</th>
+                <th>Responsable</th>
+                <th>Área</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="lista-capacitaciones">
+              <!-- Se llena dinámicamente -->
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Calendario Simplificado -->
+        <section class="calendario-section">
+          <h3>🗓️ Calendario de Capacitaciones</h3>
+          <div id="calendar" style="background: #f8f9fa; padding: 20px; border-radius: 5px; min-height: 200px;">
+            <!-- Calendario se carga aquí -->
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+// Función para cargar capacitaciones del empleado
+async function cargarCapacitacionesEmpleado() {
+    try {
+        console.log("📅 Cargando capacitaciones para empleado...");
+        
+        const response = await fetch('http://localhost:8081/api/capacitaciones');
+        const capacitaciones = await response.json();
+        
+        console.log("✅ Capacitaciones cargadas:", capacitaciones.length);
+        actualizarNotificaciones(capacitaciones);
+        actualizarListaCapacitaciones(capacitaciones);
+        actualizarCalendarioEmpleado(capacitaciones);
+        
+    } catch (error) {
+        console.error('❌ Error cargando capacitaciones:', error);
+    }
+}
+
+// Actualizar notificaciones
+function actualizarNotificaciones(capacitaciones) {
+    const lista = document.getElementById('notificaciones-lista');
+    lista.innerHTML = '';
+    
+    // Filtrar capacitaciones próximas (próximos 7 días)
+    const hoy = new Date();
+    const unaSemana = new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
+    const capacitacionesProximas = capacitaciones.filter(cap => {
+        const fechaCap = new Date(cap.fecha);
+        return fechaCap >= hoy && fechaCap <= unaSemana;
+    });
+    
+    if (capacitacionesProximas.length === 0) {
+        lista.innerHTML = '<li>No hay capacitaciones programadas para la próxima semana</li>';
+        return;
+    }
+    
+    capacitacionesProximas.forEach(cap => {
+        const fecha = new Date(cap.fecha).toLocaleDateString();
+        const hora = cap.hora ? cap.hora.substring(0, 5) : '--:--';
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${fecha} ${hora}</strong> - ${cap.tema} (${cap.responsable})`;
+        lista.appendChild(li);
+    });
+}
+
+// Actualizar lista de capacitaciones
+function actualizarListaCapacitaciones(capacitaciones) {
+    const tabla = document.getElementById('lista-capacitaciones');
+    tabla.innerHTML = '';
+    
+    if (capacitaciones.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="7">No hay capacitaciones programadas</td></tr>';
+        return;
+    }
+    
+    // Ordenar por fecha (más próximas primero)
+    capacitaciones.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    
+    const hoy = new Date();
+    
+    capacitaciones.forEach(cap => {
+        const fecha = new Date(cap.fecha);
+        const fechaStr = fecha.toLocaleDateString();
+        const hora = cap.hora ? cap.hora.substring(0, 5) : '--:--';
+        const estado = fecha < hoy ? 'Completada' : 'Programada';
+        const estadoClass = fecha < hoy ? 'atendido' : 'pendiente';
+        
+        const fila = `
+            <tr>
+                <td>${cap.tema}</td>
+                <td>${fechaStr}</td>
+                <td>${hora}</td>
+                <td>${cap.duracion || '2'} horas</td>
+                <td>${cap.responsable}</td>
+                <td>${cap.area}</td>
+                <td><span class="estado ${estadoClass}">${estado}</span></td>
+            </tr>
+        `;
+        tabla.innerHTML += fila;
+    });
+}
+
+// Actualizar calendario para empleado
+function actualizarCalendarioEmpleado(capacitaciones) {
+    const calendarEl = document.getElementById('calendar');
+    calendarEl.innerHTML = '';
+    
+    if (capacitaciones.length === 0) {
+        calendarEl.innerHTML = '<p>No hay capacitaciones programadas</p>';
+        return;
+    }
+    
+    // Crear elementos simples para el calendario
+    capacitaciones.forEach(cap => {
+        const fecha = new Date(cap.fecha);
+        const fechaStr = fecha.toLocaleDateString();
+        const hora = cap.hora ? cap.hora.substring(0, 5) : '';
+        const esPasada = fecha < new Date();
+        
+        const eventoDiv = document.createElement('div');
+        eventoDiv.className = 'calendario-evento';
+        eventoDiv.innerHTML = `
+            <strong>${fechaStr} ${hora}</strong><br>
+            ${cap.tema}<br>
+            <small>Por: ${cap.responsable}</small>
+            <br><small>Estado: ${esPasada ? '✅ Completada' : '⏳ Programada'}</small>
+        `;
+        eventoDiv.style.cssText = `
+            background: ${esPasada ? '#e8f5e8' : '#e3f2fd'}; 
+            border-left: 4px solid ${esPasada ? '#4caf50' : '#2196f3'}; 
+            padding: 10px; 
+            margin: 5px 0; 
+            border-radius: 4px;
+        `;
+        calendarEl.appendChild(eventoDiv);
+    });
+}
+
+// Inicializar cuando la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🚀 Inicializando capacitaciones empleado...");
+    
+    // Verificar que está logueado como empleado
+    const usuario = sessionStorage.getItem('usuario');
+    const rol = sessionStorage.getItem('rol');
+    
+    if (!usuario) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    if (rol === 'admin') {
+        // Si es admin, redirigir a la versión admin
+        window.location.href = 'capacitaciones.html';
+        return;
+    }
+    
+    cargarCapacitacionesEmpleado();
+    
+    // Actualizar cada 30 segundos
+    setInterval(cargarCapacitacionesEmpleado, 30000);
+});
+  </script>
+</body>
+</html>

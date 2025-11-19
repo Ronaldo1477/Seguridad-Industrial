@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Empleado | Seguridad Industrial</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="app-window">
+        <div class="title-bar">
+            <span>Sistema de Gestión de Seguridad Industrial</span>
+            <div class="window-controls">
+                <span class="control-btn" title="Minimizar">_</span>
+                <span class="control-btn" title="Maximizar">☐</span>
+                <span class="control-btn" title="Cerrar">X</span>
+            </div>
+        </div>
+
+        <div class="app-container">
+            <aside class="sidebar">
+                <h2>Módulos</h2>
+                <nav>
+                    <a href="empleado_dashboard.html" class="active">🏠 Inicio</a>
+                    <a href="registro.html">📝 Reportar Incidencia</a>
+                    <a href="comentarios.html">💬 Enviar Comentario</a>
+                    <a href="capacitaciones_empleado.html">📅 Capacitaciones</a>
+                    
+                    <a href="login.html" class="logout-btn">
+                        ➡️ Cerrar Sesión
+                    </a>
+                </nav>
+            </aside>
+            
+            <main class="main-content">
+                <h2>Tablero de Inicio</h2>
+
+                <div class="confirmacion-alerta" id="confirmacion">
+                    <h4>🚨 Documento Pendiente de Lectura Obligatoria</h4>
+                    <p>Debe leer y confirmar el conocimiento del *Reglamento Interno de Seguridad y Salud en el Trabajo*.</p>
+                    <button onclick="document.getElementById('confirmacion').style.display = 'none';">✅ He Leído y Entendido</button>
+                </div>
+
+                <div class="chart-container">
+                    <h4>Notificaciones y Estado Personal</h4>
+                    <p>
+                        **Reportes Pendientes de Revisión:** 2<br>
+                        **Casi-Accidentes Reportados (último mes):** 3<br>
+                        **Última Capacitación Obligatoria:** 15/09/2025
+                    </p>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        // Función para cargar dashboard del empleado
+        async function cargarDashboardEmpleado() {
+            try {
+                console.log("👨‍💼 Cargando dashboard empleado...");
+                
+                const usuario = sessionStorage.getItem('usuario');
+                
+                if (!usuario) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Cargar incidentes reportados por este empleado
+                const responseIncidentes = await fetch('http://localhost:8081/api/incidentes');
+                const incidentes = await responseIncidentes.json();
+                const misIncidentes = incidentes.filter(inc => inc.usuarioReporta === usuario);
+                
+                // Cargar capacitaciones
+                const responseCapacitaciones = await fetch('http://localhost:8081/api/capacitaciones');
+                const capacitaciones = await responseCapacitaciones.json();
+                
+                // Cargar comentarios del empleado
+                const responseComentarios = await fetch('http://localhost:8081/api/comentarios');
+                const comentarios = await responseComentarios.json();
+                const misComentarios = comentarios.filter(com => com.empleado === usuario);
+
+                console.log("✅ Datos cargados para empleado:", usuario);
+                actualizarDashboardEmpleado(misIncidentes, capacitaciones, misComentarios);
+                
+            } catch (error) {
+                console.error('❌ Error cargando dashboard empleado:', error);
+            }
+        }
+
+        // Actualizar dashboard del empleado
+        function actualizarDashboardEmpleado(misIncidentes, capacitaciones, misComentarios) {
+            // Actualizar estadísticas
+            const incidentesPendientes = misIncidentes.filter(inc => inc.estado === 'Pendiente').length;
+            const capacitacionesProximas = capacitaciones.filter(cap => new Date(cap.fecha) >= new Date()).length;
+            
+            // Mostrar en el dashboard
+            const contenido = document.querySelector('.chart-container');
+            contenido.innerHTML = `
+                <h4>Mi Estado de Seguridad</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <h5 style="margin: 0; color: #2e7d32;">📊 Mis Reportes</h5>
+                        <p style="margin: 10px 0; font-size: 24px; font-weight: bold;">${misIncidentes.length}</p>
+                        <small>Incidentes reportados</small>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h5 style="margin: 0; color: #1565c0;">📅 Capacitaciones</h5>
+                        <p style="margin: 10px 0; font-size: 24px; font-weight: bold;">${capacitacionesProximas}</p>
+                        <small>Próximas programadas</small>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h5>🚨 Mis Incidentes Recientes</h5>
+                    ${misIncidentes.length > 0 ? 
+                        `<ul style="list-style: none; padding: 0;">
+                            ${misIncidentes.slice(0, 3).map(inc => `
+                                <li style="background: #fff3cd; padding: 10px; margin: 5px 0; border-radius: 4px; border-left: 4px solid #ffc107;">
+                                    <strong>${inc.tipoIncidencia}</strong> - ${new Date(inc.fechaHora).toLocaleDateString()}
+                                    <br><small>Estado: <span class="estado ${inc.estado?.toLowerCase()}">${inc.estado}</span></small>
+                                </li>
+                            `).join('')}
+                        </ul>` : 
+                        '<p>No has reportado incidentes</p>'
+                    }
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h5>💬 Mis Comentarios</h5>
+                    ${misComentarios.length > 0 ? 
+                        `<ul style="list-style: none; padding: 0;">
+                            ${misComentarios.slice(0, 3).map(com => `
+                                <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 4px; border-left: 4px solid #6c757d;">
+                                    <strong>${com.asunto}</strong>
+                                    <br><small>Estado: <span class="estado ${com.estado}">${com.estado}</span></small>
+                                </li>
+                            `).join('')}
+                        </ul>` : 
+                        '<p>No has enviado comentarios</p>'
+                    }
+                </div>
+            `;
+        }
+
+        // Inicializar dashboard empleado
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("🚀 Inicializando dashboard empleado...");
+            
+            // Verificar que está logueado
+            const usuario = sessionStorage.getItem('usuario');
+            const rol = sessionStorage.getItem('rol');
+            
+            if (!usuario) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (rol === 'admin') {
+                // Si es admin, redirigir al dashboard admin
+                window.location.href = 'admin_dashboard.html';
+                return;
+            }
+            
+            cargarDashboardEmpleado();
+            
+            // Actualizar cada 30 segundos
+            setInterval(cargarDashboardEmpleado, 30000);
+        });
+    </script>
+</body>
+</html>

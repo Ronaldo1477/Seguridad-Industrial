@@ -1,0 +1,448 @@
+/*==================================
+  ESTILOS GENERALES DE ESCRITORIO
+====================================*/
+body {
+    background-color: #e9e9e9; /* Fondo de sistema operativo */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Contenedor Principal: La ventana de la aplicación */
+.app-window {
+    width: 950px;
+    height: 700px;
+    background-color: white;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* Barra de Título Simulada */
+.title-bar {
+    background-color: #0078d7; /* Azul de aplicación de sistema */
+    color: white;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    cursor: default;
+}
+.window-controls .control-btn {
+    padding: 0 8px;
+    cursor: pointer;
+    font-weight: bold;
+    opacity: 0.8;
+}
+.window-controls .control-btn:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Contenedor del Sidebar y Contenido */
+.app-container {
+    display: flex;
+    flex-grow: 1;
+}
+
+/* Sidebar (Menú Vertical) */
+.sidebar {
+    width: 220px;
+    background-color: #f2f2f2;
+    border-right: 1px solid #ddd;
+    padding-top: 20px;
+    flex-shrink: 0; /* Evita que se encoja */
+}
+.sidebar h2 {
+    font-size: 16px;
+    color: #333;
+    padding: 0 15px 10px;
+    border-bottom: 1px solid #ddd;
+    margin: 0 0 10px 0;
+}
+.sidebar nav {
+    padding: 0;
+}
+.sidebar a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    border-left: 3px solid transparent;
+}
+.sidebar a:hover, .sidebar a.active {
+    background-color: #e0e0e0;
+    border-left-color: #0078d7;
+}
+
+/* Contenido Principal */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/*==================================
+  ESTILOS DE DASHBOARD Y MÉTRICAS
+====================================*/
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.kpi-card {
+    padding: 20px;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.kpi-card h3 { 
+    margin-top: 0; 
+    font-size: 1.1em;
+    opacity: 0.8;
+}
+.kpi-card p { 
+    font-size: 2.5em; 
+    font-weight: bold; 
+    margin: 5px 0 0; 
+}
+/* Colores de Seguridad Industrial */
+.kpi-card.danger { background-color: #e53935; } 
+.kpi-card.warning { background-color: #ffb300; } 
+.kpi-card.success { background-color: #43a047; } 
+
+/* Simulación de Gráficos (solo visual) */
+.chart-container {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+.chart-container h4 {
+    margin-top: 0;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 10px;
+}
+.bar-chart {
+    height: 150px;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding-top: 10px;
+}
+.bar {
+    width: 15%;
+    background-color: #0078d7;
+    transition: height 0.3s;
+    position: relative;
+    border-radius: 3px 3px 0 0;
+}
+.bar-label {
+    position: absolute;
+    bottom: -20px;
+    font-size: 0.75em;
+    width: 100%;
+    text-align: center;
+    color: #555;
+}
+
+/*==================================
+  ESTILOS DE FORMULARIOS
+====================================*/
+.form-section {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fcfcfc;
+}
+.form-section label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #444;
+}
+.form-section input[type="text"], 
+.form-section input[type="datetime-local"], 
+.form-section select, 
+.form-section textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-sizing: border-box; /* Incluye padding y border en el width */
+}
+.form-section textarea {
+    resize: vertical;
+}
+.form-section button[type="submit"] {
+    background-color: #0078d7;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 25px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+.form-section button[type="submit"]:hover {
+    background-color: #005bb5;
+}
+
+/*==================================
+  ESTILO CONFIRMACIÓN DE LECTURA
+====================================*/
+.confirmacion-alerta {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+.confirmacion-alerta h4 {
+    margin-top: 0;
+    color: #555;
+}
+.confirmacion-alerta button {
+    background-color: #0078d7;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+.confirmacion-alerta button:hover {
+    background-color: #005bb5;
+}
+/*==================================
+  ESTILO PARA EL BOTÓN CERRAR SESIÓN
+====================================*/
+.sidebar {
+    /* Es necesario agregar 'position: relative' al sidebar para que el botón 'position: absolute' funcione correctamente */
+    position: relative; 
+    /* ... el resto de estilos del sidebar que ya tienes ... */
+}
+
+.sidebar nav {
+    /* Reservamos espacio en el nav para que el botón no cubra el último enlace */
+    padding-bottom: 70px; 
+}
+
+.sidebar .logout-btn {
+    /* Posiciona el botón permanentemente en la parte inferior del sidebar */
+    position: absolute;
+    bottom: 0; 
+    left: 0; /* Asegura que cubra todo el ancho */
+    width: 100%;
+    
+    /* Estilos de Botón de Alerta/Cierre */
+    background-color: #e53935; 
+    color: white !important; /* !important asegura que anule el color del enlace normal */
+    text-align: center;
+    padding: 15px 0;
+    border-left: none !important; /* Quitamos el borde azul activo */
+    border-top: 1px solid #d4d4d4;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.sidebar .logout-btn:hover {
+    background-color: #c62828; 
+    border-left: none !important;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto; /* Activa scroll si el contenido es largo */
+    max-height: calc(100vh - 60px); /* evita que se corte con la barra de título */
+    box-sizing: border-box;
+}
+
+.form-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 50px; /* espacio extra para que el botón no se esconda */
+}
+
+.exportar-section {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+.exportar-section h3 {
+    margin-top: 0;
+    color: #217346;
+    border-bottom: 2px solid #217346;
+    padding-bottom: 10px;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.btn-excel {
+    background-color: #217346;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-excel:hover {
+    background-color: #1a5c38;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* ================================== */
+/* ESTILOS PARA MEJORAR EL RENDERIZADO */
+/* ================================== */
+
+/* Asegurar que el sidebar ocupe toda la altura */
+.app-container {
+    height: calc(100vh - 40px); /* 100% de la ventana menos la barra de título */
+    overflow: hidden;
+}
+
+/* Sidebar con scroll independiente */
+.sidebar {
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Contenido principal con scroll */
+.main-content {
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Mejorar la tabla de comentarios */
+.tabla-comentarios table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.tabla-comentarios th,
+.tabla-comentarios td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-comentarios th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Estados mejorados */
+.estado {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.estado.pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.estado.atendido {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Botones mejorados */
+.btn-small {
+    padding: 6px 12px;
+    margin: 2px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.3s ease;
+}
+
+.btn-small.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-small.success:hover {
+    background-color: #218838;
+}
+
+.btn-small.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-small.danger:hover {
+    background-color: #c82333;
+}
+
+/* Mejorar los filtros */
+.filtros-comentarios {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid #0078d7;
+}
+
+.filtros-comentarios label {
+    display: inline-block;
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+.filtros-comentarios select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+/* Asegurar que el contenido no se desborde */
+.exportar-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}

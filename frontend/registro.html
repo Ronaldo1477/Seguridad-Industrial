@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Incidencias | Seguridad Industrial</title>
+    <link rel="stylesheet" href="estilos.css">
+    <style>
+        /* 🔹 Estilo para el botón de cerrar sesión (arriba derecha) */
+        .logout-btn-top {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .logout-btn-top:hover {
+            background: #b02a37;
+        }
+
+        .title-bar {
+            background: #0d6efd;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .window-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn {
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-window">
+        <!-- 🔹 Barra superior con botón de cerrar sesión -->
+        <div class="title-bar">
+            <span>Sistema de Gestión de Seguridad Industrial</span>
+            <div class="window-controls">
+                <a href="login.html" class="logout-btn-top" title="Cerrar Sesión">➡️ Cerrar Sesión</a>
+                <span class="control-btn" title="Minimizar">_</span>
+                <span class="control-btn" title="Maximizar">☐</span>
+                <span class="control-btn" title="Cerrar">X</span>
+            </div>
+        </div>
+
+        <div class="app-container">
+            <aside class="sidebar">
+                <h2>Módulos</h2>
+                <nav>
+                    <a href="empleado_dashboard.html">🏠 Inicio</a>
+                    <a href="registro.html" class="active">📝 Registro de Incidencias</a>
+                    <a href="comentarios.html">💬 Formulario de Comentarios</a>
+                    <a href="capacitaciones_empleado.html">📅 Capacitaciones</a>
+                </nav>
+            </aside>
+            
+            <main class="main-content">
+                <h2>Registro de Incidentes de Seguridad</h2>
+                
+                <div class="form-section">
+                    <form id="form-incidente">
+                        <label for="tipo_incidencia">Tipo de Incidencia:</label>
+                        <select id="tipo_incidencia" name="tipo_incidencia" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="Accidente con Lesión">Accidente con Lesión</option>
+                            <option value="Casi Accidente">Casi Accidente</option>
+                            <option value="Condición Insegura">Condición Insegura</option>
+                            <option value="Acto Inseguro">Acto Inseguro</option>
+                        </select>
+
+                        <label for="fecha_hora">Fecha y Hora del Suceso:</label>
+                        <input type="datetime-local" id="fecha_hora" name="fecha_hora" required>
+
+                        <label for="ubicacion">Ubicación / Área:</label>
+                        <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: Taller de Maquinaria Pesada" required>
+
+                        <label for="descripcion">Descripción Detallada del Evento:</label>
+                        <textarea id="descripcion" name="descripcion" rows="6" required></textarea>
+
+                        <label for="accion">Acciones Inmediatas Tomadas:</label>
+                        <textarea id="accion" name="accion" rows="3"></textarea>
+
+                        <button type="submit">Guardar y Enviar Reporte</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("form-incidente").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                tipoIncidencia: document.getElementById("tipo_incidencia").value,
+                fechaHora: document.getElementById("fecha_hora").value,
+                ubicacion: document.getElementById("ubicacion").value,
+                descripcion: document.getElementById("descripcion").value,
+                accion: document.getElementById("accion").value,
+                estado: "Pendiente",
+                usuarioReporta: sessionStorage.getItem('usuario') || 'Anónimo'
+            };
+
+            if (!formData.tipoIncidencia || !formData.fechaHora || !formData.ubicacion || !formData.descripcion) {
+                alert("Por favor complete todos los campos obligatorios");
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8081/api/incidentes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Incidente reportado correctamente en la base de datos');
+                    this.reset();
+                    setTimeout(() => {
+                        const rol = sessionStorage.getItem('rol');
+                        window.location.href = rol === 'admin' ? 'admin_dashboard.html' : 'empleado_dashboard.html';
+                    }, 1500);
+                } else {
+                    const error = await response.json();
+                    alert('❌ Error: ' + (error.message || 'No se pudo guardar el incidente'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error de conexión con el servidor');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            document.getElementById('fecha_hora').value = localDateTime;
+        });
+    </script>
+</body>
+</html>

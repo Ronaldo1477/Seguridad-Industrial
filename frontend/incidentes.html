@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Incidencias | Seguridad Industrial</title>
+    <link rel="stylesheet" href="estilos.css">
+
+    <!-- 📦 Librería Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fb;
+            color: #333;
+            margin: 0;
+        }
+
+        .title-bar {
+            background: #0d6efd;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .window-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logout-btn-top {
+            background: #dc3545;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn-top:hover {
+            background: #b02a37;
+        }
+
+        .app-container {
+            display: flex;
+            height: calc(100vh - 40px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 230px;
+            background: white;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: #0d6efd;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            color: #333;
+            text-decoration: none;
+            padding: 10px;
+            margin: 4px 0;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .sidebar nav a.active {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .sidebar nav a:hover {
+            background: #0b5ed7;
+            color: white;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .tabla-incidencias table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #e9ecef;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #0d6efd;
+            color: white;
+            margin: 2px;
+        }
+
+        .btn-small.danger {
+            background-color: #dc3545;
+        }
+
+        .btn-small:hover {
+            opacity: 0.9;
+        }
+
+        .exportar-section {
+            margin-top: 25px;
+        }
+
+        .btn-excel {
+            background-color: #198754;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-excel:hover {
+            background-color: #157347;
+        }
+
+        /* Loader */
+        .loader {
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-window">
+        <div class="title-bar">
+            <span>Sistema de Gestión de Seguridad Industrial (ADMINISTRADOR)</span>
+            <div class="window-controls">
+                <button class="logout-btn-top" onclick="location.href='login.html'">➡️ Cerrar Sesión</button>
+                <span class="control-btn" title="Minimizar">_</span>
+                <span class="control-btn" title="Maximizar">☐</span>
+                <span class="control-btn" title="Cerrar">X</span>
+            </div>
+        </div>
+
+        <div class="app-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <h2>Módulos</h2>
+                <nav>
+                    <a href="admin_dashboard.html">📊 Dashboard / Inicio</a>
+                    <a href="incidentes.html" class="active">📝 Incidentes</a>
+                    <a href="comentarios_admin.html">💬 Gestión de Comentarios</a>
+                    <a href="capacitaciones.html">📘 Capacitaciones</a>
+                </nav>
+            </aside>
+
+            <!-- Contenido principal -->
+            <main class="main-content">
+                <h2>Gestión de Incidencias</h2>
+
+                <!-- Tabla de Incidencias -->
+                <section class="tabla-incidencias">
+                    <h3>Listado de Incidencias Registradas</h3>
+                    <table id="tabla-incidentes">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Ubicación</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- ⏳ Mensaje inicial -->
+                            <tr><td colspan="7"><div class="loader">⏳ Cargando incidencias...</div></td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Exportación a Excel -->
+                <section class="exportar-section">
+                    <h3>📤 Exportar Incidentes a Excel</h3>
+                    <div class="export-buttons">
+                        <button class="btn-excel" onclick="exportarIncidentesExcel()">
+                            📊 Exportar Incidentes
+                        </button>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        async function cargarIncidentes() {
+            const tbody = document.querySelector("#tabla-incidentes tbody");
+            tbody.innerHTML = "<tr><td colspan='7'><div class='loader'>⏳ Cargando incidencias...</div></td></tr>";
+
+            try {
+                const response = await fetch('http://localhost:8081/api/incidentes');
+                const incidentes = await response.json();
+                mostrarIncidencias(incidentes);
+            } catch (error) {
+                console.error('❌ Error cargando incidentes:', error);
+                tbody.innerHTML = '<tr><td colspan="7">Error al cargar incidentes</td></tr>';
+            }
+        }
+
+        function mostrarIncidencias(incidentes) {
+            const tbody = document.querySelector("#tabla-incidentes tbody");
+            tbody.innerHTML = "";
+
+            if (incidentes.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='7'>No hay incidentes registrados</td></tr>";
+                return;
+            }
+
+            incidentes.sort((a, b) => new Date(b.fechaHora) - new Date(a.fechaHora));
+
+            incidentes.forEach(inc => {
+                const fecha = new Date(inc.fechaHora).toLocaleDateString();
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${inc.id}</td>
+                        <td>${fecha}</td>
+                        <td>${inc.tipoIncidencia}</td>
+                        <td>${inc.ubicacion}</td>
+                        <td>${inc.descripcion}</td>
+                        <td>${inc.estado}</td>
+                        <td>
+                            <button class="btn-small" onclick="editarIncidente(${inc.id})">✏️ Editar</button>
+                            <button class="btn-small danger" onclick="eliminarIncidente(${inc.id})">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function editarIncidente(id) {
+            const nuevoEstado = prompt("Nuevo estado (Pendiente / En Investigación / Resuelto):");
+            if (!nuevoEstado) return;
+
+            try {
+                const responseGet = await fetch(`http://localhost:8081/api/incidentes/${id}`);
+                const incidente = await responseGet.json();
+                incidente.estado = nuevoEstado.trim();
+
+                const responsePut = await fetch(`http://localhost:8081/api/incidentes/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(incidente)
+                });
+
+                if (responsePut.ok) {
+                    alert("✅ Incidente actualizado correctamente");
+                    cargarIncidentes();
+                } else {
+                    alert("❌ Error al actualizar el incidente");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Error de conexión");
+            }
+        }
+
+        async function eliminarIncidente(id) {
+            if (!confirm("¿Seguro que deseas eliminar este incidente?")) return;
+
+            try {
+                const res = await fetch(`http://localhost:8081/api/incidentes/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert("🗑️ Incidente eliminado");
+                    cargarIncidentes();
+                } else {
+                    alert("❌ No se pudo eliminar");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Error de conexión");
+            }
+        }
+
+        function exportarIncidentesExcel() {
+            const tabla = document.getElementById("tabla-incidentes");
+            if (!tabla) {
+                alert("No se encontró la tabla de incidentes.");
+                return;
+            }
+
+            const tablaClon = tabla.cloneNode(true);
+            for (let fila of tablaClon.rows) {
+                fila.deleteCell(-1);
+            }
+
+            const wb = XLSX.utils.table_to_book(tablaClon, { sheet: "Incidentes" });
+            XLSX.writeFile(wb, `Incidentes_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarIncidentes();
+            setInterval(cargarIncidentes, 30000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+com\seguridadindustrial\backend\test\CapacitacionRepositoryTest.class
+com\seguridadindustrial\backend\test\ComentarioRepositoryTest.class
+com\seguridadindustrial\backend\test\UsuarioRepositoryTest.class
+com\seguridadindustrial\backend\penetration\PruebasPenetracionTest.class
+com\seguridadindustrial\backend\deserialization\PruebasDeserializacionTest.class
+com\seguridadindustrial\backend\test\IncidenteRepositoryTest.class
+com\seguridadindustrial\backend\integration\PruebasIntegralesTest.class

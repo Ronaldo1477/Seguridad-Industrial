@@ -1,0 +1,17 @@
+com\seguridadindustrial\backend\controller\AuthController$LoginRequest.class
+com\seguridadindustrial\backend\Incidente.class
+com\seguridadindustrial\backend\Comentario.class
+com\seguridadindustrial\backend\controller\UsuarioController.class
+com\seguridadindustrial\backend\Backend.class
+com\seguridadindustrial\backend\controller\CapacitacionController.class
+com\seguridadindustrial\backend\controller\HomeController.class
+com\seguridadindustrial\backend\controller\AuthController.class
+com\seguridadindustrial\backend\controller\ComentarioController.class
+com\seguridadindustrial\backend\controller\IncidenteController.class
+com\seguridadindustrial\backend\Capacitacion.class
+com\seguridadindustrial\backend\Usuario.class
+com\seguridadindustrial\backend\repository\UsuarioRepository.class
+com\seguridadindustrial\backend\controller\ConexionController.class
+com\seguridadindustrial\backend\repository\ComentarioRepository.class
+com\seguridadindustrial\backend\repository\IncidenteRepository.class
+com\seguridadindustrial\backend\repository\CapacitacionRepository.class
